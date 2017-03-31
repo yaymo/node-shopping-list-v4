@@ -112,6 +112,33 @@ app.delete('/recipes/:id', (req, res) => {
   res.status(204).end();
 });
 
+app.put('/recipes/:id', jsonParser, (req, res) => {
+  const requiredFields = ['name', 'id', 'ingredients'];
+  for(let i=0; i<requiredFields.length; i++){
+    const field = requiredFields[i];
+    if(!(field in req.body)){
+      const message = `Missing \`${field}\` in the request body`
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  if(req.params.id !== req.body.id){
+    const idErrorMessage = `The request path id (`${req.params.id}`) must match the body id (`${req.body.id}`)`
+    console.error(idErrorMessage);
+    return res.status(400).send(idErrorMessage);
+  }
+
+  const updatedItem = Recipes.update({
+    name: req.body.name,
+    id: req.body.id,
+    ingredients: req.body.ingredients
+  });
+
+  res.status(204).json(updatedItem);
+
+});
+
 app.listen(process.env.PORT || 8080, () => {
   console.log(`Your app is listening on port ${process.env.PORT || 8080}`);
 });
